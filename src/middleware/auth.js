@@ -1,17 +1,12 @@
 const jwt = require('jsonwebtoken')
 
 const User = require('../models/user')
-
-if ( process.env.NODE_ENV === 'production') {
-  var secret = process.env.SECRET
-} else {
-  const config = require('../config.js')
-  var secret = config.secret
-}
+const config = require('../config')
 
 const auth = function( req, res, next ) {
   try {
     const token = req.header('Authorization').replace('Bearer ', '')
+    const secret = process.env.SECRET || config.secret
     const decoded = jwt.verify(token, secret)
     User.findOne({ _id: decoded._id, 'tokens.token': token }).then(function(user) {
       if(!user) {
